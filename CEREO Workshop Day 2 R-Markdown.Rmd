@@ -1,0 +1,263 @@
+---
+title: "CEREO Workshop Day 2 R-Markdown"
+author: 
+  - "Jesse Burgher"
+  - "Collaborator"
+date: "11/17/2020"
+abstract: |
+  This is an abstract. Practiving formatting here.
+  Notes from the second day of the CEREO workshop focusing on R-Markdown Skills
+  
+  It consists of two paragraphs how strange.
+output: html_document
+---
+```{r globnal, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, fig.align = 'center')
+
+library(tidyverse)
+```
+
+
+# Header One
+Biggest header we can get with single pound sign.
+
+## Header Two
+Big
+
+### Header Three
+Medium
+
+#### Header Four
+Bold Small Header Line
+
+
+
+Only need three hyphens to make line
+
+---
+
+
+Or underscore
+___
+
+
+Or Stars
+
+***
+
+# Intro to Markdown Syntax
+
+### Text Formatting
+
+Here is an example of **bold** text. 
+Another example of __bold__.
+For italic text you use one *star*. Again you can use _underscores_ as well.
+To use both bold and italics you can use ***three*** stars or ___underscores___
+What about super scripts x^2^. And subscripts x~2~ 
+For underlining you need to use html
+<u>underlined text</u>
+~~underlined strike through~~ = no!
+
+
+### Line Breaks: To make lines show up there are a few things you can do.
+
+<!-- commented line, can use command + shift + C to add comment syntax -->
+
+Can add two spaces after line to add line break but not easy to see
+
+Line 1  
+Line 2
+
+Line 1 <br>
+Line 2
+
+\* Note: that `<br>` doesn't make a new paragraph it just does a line break.
+
+### Body of the Document
+
+This is our report introduction and we want to include supporting information in the form of a blockquote from and important person in our field. 
+
+> This is an important quote from an important source
+>
+> This person is ***really*** important
+>
+>>Can nest quotes within block quotes
+>
+
+Paragraph Two 
+
+Paragraph Three
+
+### Lists
+
+A numbered list
+
+  1. Item One
+  2. Item Two
+  3. Item Three
+  
+A Symbol list: Will always generate with bullet points
+
+  - Item One
+  - Item Two
+  - Item Three
+
+  + Item Four
+  + Item Five
+  * Item Six
+  
+
+A list with a sublist: This isn't working for me  
+  
+  1. Item One
+    i, subitem
+  2. Item Two
+    ii. empty
+  3. Item Three
+
+> This is my **super** important list
+>
+>1. item 1
+>     i. subitem
+>2. item 2
+>3. item 3
+
+Paragraphs or descriptions under list items
+
+1. Item 1
+
+    This is a description for item one.
+
+2. Item 2
+
+    Second Paragrapoh desceription will be larger than listed item text.
+    
+3. Item 3
+
+    Third decriptor paragraph, use two enters and two tabs for R MArkdown to recognise this as a paragraph.
+
+
+### Tables in Markdown
+
+ Col 1    Col 2   Col 3    Col 4
+-------   ------  -------  -------
+   1        0       1        0  
+   0        1       0        1
+   0        1       1        0
+
+Table 1: Demonstration of Messy Table
+
+### Links and Graphics
+
+Let's say we want to include a **link** to another source of information. We can easily do tnat by including the links, <http://rmarkdown.rstudio.com/lesson-1.html>
+Or we can include hyperlinks with [link](http://rmarkdown.rstudio.com/lesson-1.html).
+
+Let's include some graphic!!
+
+![A cooool graphic](https://bookdown.org/yihui/rmarkdown/images/hex-rmarkdown.png)
+That's WAY too big. 
+
+![A cooool graphic](https://bookdown.org/yihui/rmarkdown/images/hex-rmarkdown.png){width=35%}
+
+
+# Code Chunks in Markdown
+Short cuts opt+Alt+i
+
+```{r graphic, echo=TRUE, fig.align='center', fig.cap="A Cool Graphique", out.width="25%"}
+knitr::include_graphics("https://bookdown.org/yihui/rmarkdown/images/hex-rmarkdown.png")
+```
+
+
+###Generate Data
+```{r gen_x, echo= TRUE}
+x <- rnorm(n = 100,mean = 5, sd = 1) 
+```
+
+```{r gen_y, echo= TRUE}
+y <- 2 + 2*x + rnorm(n= length(x)) 
+```
+
+```{r data_plot, echo=TRUE}
+plot(x,y, main = 'y= f(x)')
+```
+
+Include information between (x, y). Including math equations. This could be sueful to import into other processors as well!
+
+Our response variable is $y$ is distributed $N(\mu, \sigma^2)$. where 
+\begin{align}
+\mu &= 2 + 2*E[x] + E[e] \\[5pt]
+\sigma^2 &= 2^2Var[x] + Var[e] + 2(2)Cov(x,e)
+\end{align}
+
+$$
+y=f(x)
+$$
+We see that $\mu=$ `r mean (y)` and $\sigma^2 =$ `r var(y)`. Let's round the outputs. 
+
+$\mu=$ `r round(mean (y), digits = 2)` 
+
+$\sigma^2 =$ `r round(var(y), digits = 2)`
+
+
+#Working With Data
+```{r data_import, echo=TRUE, message=FALSE}
+df_all <- read_csv("data/daily_bike_data.csv")
+dftemp <- df_all %>%
+          select(cnt,temp)
+```
+
+```{r summary_stats, echo= TRUE}
+ss_dftemp <- sapply(dftemp,
+                    function(x) c(mean(x), min(x), max(x), sd(x))) %>% 
+  data.frame()%>%
+  round(digits = 2)
+
+row.names(ss_dftemp) <- c('mean', 'min', 'max', 'sd')
+ss_dftemp %>% knitr::kable(caption='Summary Statistics')
+```
+
+```{r data_viz, echo=TRUE}
+ggplot(dftemp, aes(temp,cnt))+
+  geom_point()+
+  labs(title= 'Daily Bike Rental and Temp',
+       x= 'Temperature (F, normalized)',
+       y= 'Bike Rentals')
+```
+
+```{r data_mods, echo=TRUE}
+dftemp <- dftemp %>% 
+  mutate(temp2 = temp^2)
+
+mod1 <- lm(formula= cnt ~ temp, 
+           data = dftemp)
+
+mod2 <- lm(formula = cnt ~ temp + temp2,
+           data= dftemp)
+
+pred_mod1 <- predict(mod1, dftemp['temp'])
+pred_mod2 <- predict(mod2, dftemp[c('temp', 'temp2')])
+
+dftemp <- dftemp %>% 
+  mutate(cnt_mod1= pred_mod1,
+         cnt_mod2= pred_mod2)
+```
+
+```{r model_viz, echo=TRUE}
+ggplot(dftemp, aes(temp,cnt))+
+  geom_point()+
+  geom_line(aes(x=temp, y=pred_mod1, color = "f(temp)"), size = 1)+
+  geom_line(aes(x=temp, y=pred_mod2,  color = "f(temp, temp2)"), size = 1)+
+  labs(title= 'Daily Bike Rental and Temp',
+       x= 'Temperature (F, normalized)',
+       y= 'Bike Rentals',
+       color = "Functions") +
+  scale_color_manual(values = c('f(temp)'='red', 
+                                'f(temp, temp2)'= 'blue'))
+  
+```
+
+
+
+
+
+

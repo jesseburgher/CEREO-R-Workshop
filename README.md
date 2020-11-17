@@ -19,3 +19,8 @@ Git workflow:
 - 'git push'
 
 TRY #3 for Fun
+
+Running Notes now that I will update 
+#When to Commit?
+-Committing makes sense when breaking up specific tasks, it is personal preference. Can do end of work day, or specific tasks, or more often. 
+
